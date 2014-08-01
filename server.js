@@ -1386,6 +1386,58 @@ cache(function(data, match, sendBadge) {
   });
 }));
 
+//  &yet autodeploy
+camp.route(/^\/autodeploy\/(.*))$/,
+function(data, match, end, ask) {
+  var project = escapeFormat(match[1]);
+  var etcdUrl = 'http://192.168.6.5:4001/v2/keys/autodeploy/' + project;
+
+  request({ url: etcdUrl },
+      function (error, response, body) {
+          if (error) {
+              console.error(error);
+          } else {
+              // body will be something like
+              // {"action":"get",
+              //  "node":{"key":"/autodeploy/ampersandjs.com",
+              //          "dir":true,
+              //          "nodes":[{"key":"/autodeploy/ampersandjs.com/gh-pages",
+              //                    "value":"ampersandjs.com",
+              //                    "modifiedIndex":1629,
+              //                    "createdIndex":1629}
+              //                  ],
+              //          "modifiedIndex":1628,
+              //          "createdIndex":1628
+              //         }
+              //  }
+
+              var result = JSON.parse(body);
+              var branch = result.node.nodes[0].key.split('/')[3];
+              var domain = result.node.nodes[0].value;
+
+              if ( branch.indexOf('-') > -1 ) {
+                  branch = branch.replace('-', '--');
+              };
+              if ( domain.indexOf('-') > -1 ) {
+                  domain = domain.replace('-', '--');
+              };
+
+              // Badge creation.
+              try {
+                var badgeData = {text: ['autdeploy', branch + '%3A' + domain]};
+                badgeData.colorscheme = 'green';
+                badge(badgeData, makeSend('svg', ask.res, end));
+              } catch(e) {
+                badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+                  makeSend('svg', ask.res, end));
+              };
+          };
+      }
+  );
+
+
+});
+
 // Any badge.
 camp.route(/^\/(:|badge\/)(([^-]|--)+)-(([^-]|--)+)-(([^-]|--)+)\.(svg|png|gif|jpg)$/,
 function(data, match, end, ask) {
