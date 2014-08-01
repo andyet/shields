@@ -1392,10 +1392,11 @@ function(data, match, end, ask) {
   var project = escapeFormat(match[1]);
   var etcdUrl = 'http://192.168.6.5:4001/v2/keys/autodeploy/' + project;
 
-  request({ url: etcdUrl },
+  request({ url: etcdUrl, json: true },
       function (error, response, body) {
-          if (error) {
-              console.error(error);
+          if (error || response.statusCode != 200) {
+              badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+                    makeSend('svg', ask.res, end));
           } else {
               // body will be something like
               // {"action":"get",
@@ -1411,18 +1412,23 @@ function(data, match, end, ask) {
               //         }
               //  }
 
-              var result = JSON.parse(body);
-              var branch = result.node.nodes[0].key.split('/')[3];
-              var domain = result.node.nodes[0].value;
+              if ( body.node.nodes.length > 0 ) {
+                  var branch = body.node.nodes[0].key.split('/')[3];
+                  var domain = body.node.nodes[0].value;
 
-              // Badge creation.
-              try {
-                var badgeData = {text: ['autodeploy', branch + ': ' + domain]};
-                badgeData.colorscheme = 'green';
-                badge(badgeData, makeSend('svg', ask.res, end));
-              } catch(e) {
-                badge({text: ['error', 'bad badge'], colorscheme: 'red'},
-                  makeSend('svg', ask.res, end));
+                  // Badge creation.
+                  try {
+                    var badgeData = {text: ['autodeploy', branch + ': ' + domain]};
+                    badgeData.colorscheme = 'green';
+                    badge(badgeData, makeSend('svg', ask.res, end));
+                  } catch(e) {
+                    badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+                          makeSend('svg', ask.res, end));
+                  };
+              } else {
+                    badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+                          makeSend('svg', ask.res, end));
+
               };
           };
       }
