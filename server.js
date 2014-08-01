@@ -1387,7 +1387,7 @@ cache(function(data, match, sendBadge) {
 }));
 
 //  &yet autodeploy
-camp.route(/^\/autodeploy\/(.*))$/,
+camp.route(/^\/autodeploy\/(.*)$/,
 function(data, match, end, ask) {
   var project = escapeFormat(match[1]);
   var etcdUrl = 'http://192.168.6.5:4001/v2/keys/autodeploy/' + project;
@@ -1415,16 +1415,9 @@ function(data, match, end, ask) {
               var branch = result.node.nodes[0].key.split('/')[3];
               var domain = result.node.nodes[0].value;
 
-              if ( branch.indexOf('-') > -1 ) {
-                  branch = branch.replace('-', '--');
-              };
-              if ( domain.indexOf('-') > -1 ) {
-                  domain = domain.replace('-', '--');
-              };
-
               // Badge creation.
               try {
-                var badgeData = {text: ['autdeploy', branch + '%3A' + domain]};
+                var badgeData = {text: ['autdeploy', branch + ': ' + domain]};
                 badgeData.colorscheme = 'green';
                 badge(badgeData, makeSend('svg', ask.res, end));
               } catch(e) {
