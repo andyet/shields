@@ -1417,7 +1417,7 @@ function(data, match, end, ask) {
 
               // Badge creation.
               try {
-                var badgeData = {text: ['autdeploy', branch + ': ' + domain]};
+                var badgeData = {text: ['autodeploy', branch + ': ' + domain]};
                 badgeData.colorscheme = 'green';
                 badge(badgeData, makeSend('svg', ask.res, end));
               } catch(e) {
