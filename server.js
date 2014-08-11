@@ -1395,7 +1395,7 @@ function(data, match, end, ask) {
   request({ url: etcdUrl, json: true },
       function (error, response, body) {
           if (error || response.statusCode != 200) {
-              badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+              badge({text: ['autodeploy', 'none'], colorscheme: 'green'},
                     makeSend('svg', ask.res, end));
           } else {
               // body will be something like
@@ -1422,11 +1422,11 @@ function(data, match, end, ask) {
                     badgeData.colorscheme = 'green';
                     badge(badgeData, makeSend('svg', ask.res, end));
                   } catch(e) {
-                    badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+                    badge({text: ['autodeploy', 'badge error'], colorscheme: 'red'},
                           makeSend('svg', ask.res, end));
                   };
               } else {
-                    badge({text: ['error', 'bad badge'], colorscheme: 'red'},
+                    badge({text: ['autodeploy', 'none'], colorscheme: 'green'},
                           makeSend('svg', ask.res, end));
 
               };
